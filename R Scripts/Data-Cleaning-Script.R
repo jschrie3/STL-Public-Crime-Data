@@ -2,9 +2,12 @@
 library(dplyr)
 library(data.table)
 
+workpcpath<-'C:/Users/Gunathilakel/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles'
+homepcpath<-'C:/Users/lakna/OneDrive/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles'
 #Data cleaning Script
-setwd('C:/Users/lakna/OneDrive/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles')
+setwd(workpcpath)
 
+getwd()
 
 myMergedData <- 
   do.call(rbind,
@@ -13,4 +16,6 @@ myMergedData <-
 
 mapready<-myMergedData%>%select(Description,XCoord,YCoord)
 
-rm(myMergedData)
+mapready<-mapready%>%rename(Lon=XCoord,Lat=YCoord)
+
+
