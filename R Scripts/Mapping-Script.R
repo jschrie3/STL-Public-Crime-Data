@@ -14,12 +14,17 @@ library('ggmap')
 stlouis<-c(lon=-90.199402,lat=38.627003)
 
 
-map_5 <- get_map(stlouis, zoom = 13, scale = 2)
+map_5 <- get_map(stlouis, zoom = 8, scale = 2)
 ggmap(map_5)
 
 
 #obtaining data 
+ggmap(map_5)+
+  geom_point(aes(lon,lat),data=my_latlon_df)
 
 
+str(my_latlon_df)
 
-ggmap(map_5)+geom_point(aes(Lon,Lat),data=mapready)
+my_latlon_df$lat<-as.numeric(my_latlon_df$lat)
+my_latlon_df$lon<-as.numeric(my_latlon_df$lon)
+
