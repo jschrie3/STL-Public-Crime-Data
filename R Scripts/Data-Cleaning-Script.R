@@ -21,7 +21,12 @@ myMergedData <-
           lapply(list.files(path = getwd()), fread))
 
 
+
+
 mapready<-myMergedData%>%select(CodedMonth,Description,XCoord,YCoord)
+
+mapready<-mapready%>%filter(XCoord!=0) #Getting rid of values where the Xcoord is 0
+
 mapready_sf<-st_as_sf(mapready,coords = c("XCoord","YCoord"),crs=102696) # This sets the x and y to spatial coordinates.
 
 my_latlon_df <- st_transform(mapready_sf, crs = 4326 )  #re-project into a geographic system like WGS84 to convert to lat long

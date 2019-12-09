@@ -14,17 +14,17 @@ library('ggmap')
 stlouis<-c(lon=-90.199402,lat=38.627003)
 
 
-map_5 <- get_map(stlouis, zoom = 8, scale = 2)
-ggmap(map_5)
+stlmap <- get_map(stlouis,maptype = 'toner-hybrid', zoom = 12, scale = 2,source = "stamen")
+ggmap(stlmap)
+
+my_latlon_df<-head(my_latlon_df,20)
+
+#Initial Mapping 
+ggmap(stlmap,
+      base_layer = ggplot(my_latlon_df,aes(lat,lon)))+
+      geom_point(aes(color=Description))
+      
 
 
-#obtaining data 
-ggmap(map_5)+
-  geom_point(aes(lon,lat),data=my_latlon_df)
 
-
-str(my_latlon_df)
-
-my_latlon_df$lat<-as.numeric(my_latlon_df$lat)
-my_latlon_df$lon<-as.numeric(my_latlon_df$lon)
 
