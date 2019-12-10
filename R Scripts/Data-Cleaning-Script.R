@@ -23,7 +23,7 @@ myMergedData <-
 
 
 
-mapready<-myMergedData%>%select(CodedMonth,Description,XCoord,YCoord)
+mapready<-myMergedData%>%select(CodedMonth,Description,XCoord,YCoord,ILEADSStreet,ILEADSAddress)
 
 mapready<-mapready%>%filter(XCoord!=0) #Getting rid of values where the Xcoord is 0
 
