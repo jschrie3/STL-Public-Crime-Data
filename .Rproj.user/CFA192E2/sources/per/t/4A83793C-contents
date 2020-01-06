@@ -1,0 +1,15 @@
+#------Loading Required Library's
+library(here)
+library(sf)
+library(compstatr)
+
+#--------------Obtaining the Data from 
+df<-cs_get_data(year = 2018)
+
+setwd('C:/Users/Gunathilakel/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles/2018')
+
+for(i in seq_along(df)) {
+  write.table(df[[i]], paste(names(df)[i], ".csv", sep = ""), 
+              col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+}
+

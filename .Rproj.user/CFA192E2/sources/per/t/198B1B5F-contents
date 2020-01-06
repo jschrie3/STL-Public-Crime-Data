@@ -1,0 +1,109 @@
+#-------This script provides Answers to the Issued and Refused Questions
+library(here)
+source(here("Scripts","library.R"))
+
+
+Datareadyforanalysis<-fread(here("IntermediateData","CleanedIssuedRefused.csv"))
+
+
+#-------------How many cases were referred? by severity?-------------
+#1.	counts of felony cases referred (Can be directly obtained from PBK reports) 
+#2.	counts of misdemeanor cases referred (Can be obtained from PBK reports)
+
+
+
+Referred_F_and_M_Summary<-Datareadyforanalysis%>%filter(CaseSeverity=='F'|CaseSeverity=='M')%>%distinct(FileNumber,.keep_all = T)%>%
+  group_by(refYear,CaseSeverity)%>%summarize(n=n())
+Referred_Summary<-spread(Referred_F_and_M_Summary,CaseSeverity,n)%>%rename(Year=refYear,Felony=F,Misdemeanor=M)%>%mutate(Total=Felony+Misdemeanor)
+
+
+Referred_Demographics<-Datareadyforanalysis%>%
+                       filter(CaseSeverity=='F'|CaseSeverity=='M')%>%
+                       distinct(FileNumber,.keep_all = T)%>%
+                       group_by(refYear,BookedRace)%>%summarize(n=n())%>%spread(refYear,n)
+
+
+write.csv(Referred_Summary,here('Results/Referredsummary.csv'))
+
+#3.	counts of specific targeted charges referred - marijuana, guns, drugs (Need to agree on charge codes that fall into each category
+                                                                          
+
+#How many were refused? by severity? reasons?
+Refused_Cases_summary<-Datareadyforanalysis%>%filter(Status=='REFUSED')%>%filter(CaseSeverity=='F'|CaseSeverity=='M')%>%distinct(FileNumber,.keep_all = T)%>%
+  group_by(refYear,CaseSeverity)%>%summarize(n=n())
+Refused_Cases_summary<-spread(Refused_Cases_summary,CaseSeverity,n)%>%mutate(total=F+M)%>%rename(Year=refYear,Felony=F,Misdemeanor=M)
+
+write.csv(Refused_Cases_summary,here('Results/Refusedsummary.csv'))
+
+rm(Referred_F_and_M_Summary)
+
+
+issued_cases_summary<-Datareadyforanalysis%>%filter(!Status %in% c("REFUSED","REVIEW"))%>%
+                                filter(CaseSeverity=='F'|CaseSeverity=='M')%>%distinct(FileNumber,.keep_all = T)%>%
+                                group_by(refYear,CaseSeverity)%>%summarize(n=n())
+
+
+
+issued_cases_summary<-spread(issued_cases_summary,CaseSeverity,n)%>%
+                      mutate(total=F+M)%>%
+                      rename(Year=refYear,Felony=F,Misdemeanor=M)
+
+write.csv(issued_cases_summary,here('Results/IssuedCasessummary.csv'))
+
+#Cases that have multiple charges
+ 
+issued_cases<-Datareadyforanalysis%>%                           #This code block provides cases that were issued 
+              filter(!Status %in% c("REFUSED","REVIEW"))%>%     #and where the issued charge column is not blank
+              filter(CaseSeverity=='F'|CaseSeverity=='M')%>%filter(issuedcharge!='')
+
+
+multiplecharges_cases<-issued_cases%>%                          #Provides case where the issuedcharge column has more than one entry
+                  group_by(FileNumber)%>%
+                  filter(n_distinct(issuedcharge)>1)
+
+multiplecharges_summary<-multiplecharges_cases%>%
+                                        distinct(FileNumber,.keep_all = T)%>%
+                                        group_by(refYear,CaseSeverity)%>%
+                                        summarize(n=n())%>%
+                                        spread(CaseSeverity,n)%>%
+                                        mutate(total=F+M)%>%
+                                        rename(Year=refYear,Felony=F,Misdemeanor=M)
+write.csv(multiplecharges_summary,here('Results/Multiplecharges.csv'))
+
+
+#---------Demographic Characteristics-------------
+Datareadyforanalysis<-Datareadyforanalysis%>%mutate(Race=case_when(BookedRace=='B'~'Black/African American',
+                                                                   BookedRace=='A'~'Asian',
+                                                                   BookedRace=='E'~'Eastern Indian',
+                                                                   BookedRace=='H'~'Hispanic Latino',
+                                                                   BookedRace=='M'~'Multiple Races',
+                                                                   BookedRace=='O'~'Other Bi Racal',
+                                                                   BookedRace=='P'~'Native Hawaiian/Pacific Islander',
+                                                                   BookedRace=='S'~'Some Other Race',
+                                                                   BookedRace=='W'~'White',
+                                                                   BookedRace=='U'~'Unknown'))
+
+
+#----Referred Demo
+referred_demographics<-Datareadyforanalysis%>%
+                      filter(CaseSeverity=='F'|CaseSeverity=='M')%>%
+                      distinct(FileNumber,.keep_all = T)
+
+referred_demographics_summary<-referred_demographics%>%group_by(Race,refYear)%>%
+                          summarize(n=n())%>%
+                          pivot_wider(names_from = refYear, values_from = n)
+
+write.csv(referred_demographics_summary,here('Results/ReferredDemo.csv'))
+
+
+#----Issued Demo
+issued_demo<-Datareadyforanalysis%>%filter(!Status %in% c("REFUSED","REVIEW"))%>%
+  filter(CaseSeverity=='F'|CaseSeverity=='M')%>%distinct(FileNumber,.keep_all = T)
+
+issued_demo_summary<-issued_demo%>%group_by(Race,refYear)%>%
+  summarize(n=n())%>%
+  pivot_wider(names_from = refYear, values_from = n)      
+
+write.csv(issued_demo_summary,here('Results/issuedDemo.csv'))
+
+?write.csv
