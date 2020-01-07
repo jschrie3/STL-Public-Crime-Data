@@ -28,4 +28,8 @@ myMergedData <-
   do.call(rbind,
           lapply(list.files(path = getwd(),full.names = TRUE), fread))
 
-write.csv(myMergedData,here('CleanFiles/Mergeddata2018.csv'))
+
+#Write the combined data into the clean files folder---------------------------------
+write.csv(myMergedData,here('DataFiles/Clean Files/Mergeddata2018.csv')) 
+
+
