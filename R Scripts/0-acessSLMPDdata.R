@@ -10,10 +10,10 @@ library(ggmap)
 
 
 #Accessing the SLMPD data using the compstart package-------------------------------
-df<-cs_get_data(year = 2018)
+i <- cs_create_index()
+df<-cs_get_data(year = 2018,index = i)
 
-
-setwd('C:/Users/Gunathilakel/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles/2018')
+setwd('C:/Users/Gunathilakel/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles/2019')
 
 #Saving all the individual monthly crime files obtained using the cs_get_data function 
 #into the repsective year folder-----------------------------------------------------
@@ -31,5 +31,4 @@ myMergedData <-
 
 #Write the combined data into the clean files folder---------------------------------
 write.csv(myMergedData,here('DataFiles/Clean Files/Mergeddata2018.csv')) 
-
 

@@ -8,7 +8,7 @@ source(workpcpath)
 library('sf')
 library('mapview')
 library('ggmap')
-
+library(mapview)
 
 #St Louis coordinates
 stlouis<-c(lon=-90.199402,lat=38.627003)
@@ -25,6 +25,6 @@ ggmap(stlmap,
       geom_point(aes(color=Description))
       
 
-
+#-------Quick interactive mapping with maview
 
 
