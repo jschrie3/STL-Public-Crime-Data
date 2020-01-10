@@ -1,22 +1,51 @@
-#----------The following Script reads each of the individual files and stores them in a format that can be used by ggmap---------
+#------------------Data Preprosessing Script-------------------------------#
+#---------------Created By Laknath Gunathilake-----------------------------#
 
-#loading Required Library's 
-library(dplyr)
-library(data.table)
-library(sf)
-library(tidyverse)
-library(ggmap)
+#loading Required Library's------------------------------------------------# 
 library(here)
-library(compstatr)
-library(mapview)
+source(here('R Scripts/library.R'))
 
 
 #The following code reads each one of the individual files and merges them into a single file
 
-myMergedData<-fread(here('DataFiles/Clean Files','Mergeddata2018.csv'))
+myMergedData<-fread(here('DataFiles/Clean Files','Mergeddata2019.csv'))
+
+#Convert offenses into the UCR codes available in----------------------------------------------------------
+#https://ucr.fbi.gov/additional-ucr-publications/ucr_handbook.pdf pg (8)
+
+
+myMergedData<-myMergedData%>%mutate(crime=as.character(crime))
+myMergedData$new_ucr <- with(myMergedData, substring(crime,1,ifelse(nchar(crime) == 6, 2, 1)))
+
+test<-myMergedData%>%mutate(ucr=case_when(new_ucr=="1"~'Criminal Homicide',
+                                          new_ucr=="2"~' Forcible Rape',
+                                          new_ucr=='3'~'Robbery',
+                                          new_ucr=='4'~'Aggravated Assault',
+                                          new_ucr=='5'~'Burglary ',
+                                          new_ucr=='6'~'Theft',
+                                          new_ucr=='7'~'Motor Vehicle Theft',
+                                          new_ucr=='8'~'Arson',
+                                          new_ucr=='9'~'Other Assaults',
+                                          new_ucr=='10'~'Forgery and Counterfeiting',
+                                          new_ucr=='11'~'Fraud',
+                                          new_ucr=='12'~'Embezzlement',
+                                          new_ucr=='13'~'Stolen Property',
+                                          new_ucr=='14'~'Vandalism',
+                                          new_ucr=='15'~'Carrying, Possessing weapons',
+                                          new_ucr=='16'~'Prostitution',
+                                          new_ucr=='17'~'Sex Offenses',
+                                          new_ucr=='18'~' Drug Abuse Violations',
+                                          new_ucr=='19'~' Gambling',
+                                          new_ucr=='20'~'Offenses Against the Family and Children',
+                                          new_ucr=='21'~'DUI',
+                                          new_ucr=='22'~'Liquor Laws',
+                                          new_ucr=='23'~'Drunkenness',
+                                          new_ucr=='24'~'Disorderly Conduct',
+                                          new_ucr=='25'~'Vagrancy'))
 
 
 
+#-------------
 mapready<-myMergedData%>%select(coded_month,description,x_coord,y_coord,count)
 
 #Getting rid of rows that contain -1 in count indicating that the incident was unfounded--------------------

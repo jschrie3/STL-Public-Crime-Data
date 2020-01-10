@@ -1,17 +1,14 @@
+#--------------Script for Obtaining Data--------------------------------------#
+#-------------Created by Laknath Gunathilake----------------------------------#
+
+
 #Loading Required Library's---------------------------------------------------------
 library(here)
-library(sf)
-library(compstatr)
-library(data.table)
-library(dplyr)
-library(tidyverse)
-library(ggmap)
-
-
+source(here('R Scripts/library.R'))
 
 #Accessing the SLMPD data using the compstart package-------------------------------
 i <- cs_create_index()
-df<-cs_get_data(year = 2018,index = i)
+df<-cs_get_data(year = 2019,index = i)
 
 setwd('C:/Users/Gunathilakel/Desktop/STL-Public-Crime-Data/DataFiles/CrimeFiles/2019')
 
@@ -30,5 +27,5 @@ myMergedData <-
 
 
 #Write the combined data into the clean files folder---------------------------------
-write.csv(myMergedData,here('DataFiles/Clean Files/Mergeddata2018.csv')) 
+write.csv(myMergedData,here('DataFiles/Clean Files/Mergeddata2019.csv')) 
 
