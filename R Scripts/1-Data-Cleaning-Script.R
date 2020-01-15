@@ -3,12 +3,30 @@
 
 #loading Required Library's------------------------------------------------# 
 library(here)
-source(here('R Scripts/library.R'))
+library(chron)
+source(here('R Scripts/library.R')) # This script loads all the library's stored in library.R script
 
 
 #The following code reads each one of the individual files and merges them into a single file
 
 myMergedData<-fread(here('DataFiles/Clean Files','Mergeddata2019.csv'))
+
+
+#extract the date and time from the date_occur column
+myMergedData$incident_time<-substring(myMergedData$date_occur,12,16)
+myMergedData$time<-as.POSIXct(myMergedData$incident_time,format="%H:%M", tz = "UTC")
+myMergedData$time<-times(strftime(myMergedData$time,"%H:%M:%S"))
+
+
+chron(time=substring(myMergedData$time,12,16))
+
+myMergedData$incident_date<-as.Date(myMergedData$date_occur,format='%m/%d/%Y')
+chron(time = myMergedData$incident_time)
+
+timedf<-myMergedData%>%select(date_occur,incident_time,time)
+
+
+
 
 #Convert offenses into the UCR codes available in----------------------------------------------------------
 #https://ucr.fbi.gov/additional-ucr-publications/ucr_handbook.pdf pg (8)
@@ -41,12 +59,24 @@ test<-myMergedData%>%mutate(ucr=case_when(new_ucr=="1"~'Criminal Homicide',
                                           new_ucr=='22'~'Liquor Laws',
                                           new_ucr=='23'~'Drunkenness',
                                           new_ucr=='24'~'Disorderly Conduct',
-                                          new_ucr=='25'~'Vagrancy'))
+                                          new_ucr=='25'~'Vagrancy',
+                                          new_ucr=='26'~'All Other Offenses',
+                                          new_ucr=='27'~ 'Suspicion',
+                                          new_ucr=='28'~'Curfew and Loitering',
+                                          new_ucr=='29'~'Runaways'))
+
+
+
+
+
+
+
+
 
 
 
 #-------------
-mapready<-myMergedData%>%select(coded_month,description,x_coord,y_coord,count)
+mapready<-test%>%select(coded_month,description,x_coord,y_coord,count,ucr)
 
 #Getting rid of rows that contain -1 in count indicating that the incident was unfounded--------------------
 mapready<-mapready%>%filter(count!=-1)%>%select(-count)
