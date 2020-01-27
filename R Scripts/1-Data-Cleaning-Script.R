@@ -3,9 +3,7 @@
 
 #loading Required Library's------------------------------------------------# 
 library(here)
-library(chron)
 source(here('R Scripts/library.R')) # This script loads all the library's stored in library.R script
-
 
 #The following code reads each one of the individual files and merges them into a single file
 
@@ -13,17 +11,13 @@ myMergedData<-fread(here('DataFiles/Clean Files','Mergeddata2019.csv'))
 
 
 #extract the date and time from the date_occur column
-myMergedData$incident_time<-substring(myMergedData$date_occur,12,16)
-myMergedData$time<-as.POSIXct(myMergedData$incident_time,format="%H:%M", tz = "UTC")
-myMergedData$time<-times(strftime(myMergedData$time,"%H:%M:%S"))
+library(lubridate)
+myMergedData$date_occur_formatted<-mdy_hm(myMergedData$date_occur)
+myMergedData$date_occur_formatted<-with_tz(myMergedData$date_occur_formatted,"America/Chicago")
+myMergedData$hour<-hour(myMergedData$date_occur_formatted)
 
+summary(as.factor(myMergedData$hour))
 
-chron(time=substring(myMergedData$time,12,16))
-
-myMergedData$incident_date<-as.Date(myMergedData$date_occur,format='%m/%d/%Y')
-chron(time = myMergedData$incident_time)
-
-timedf<-myMergedData%>%select(date_occur,incident_time,time)
 
 
 
